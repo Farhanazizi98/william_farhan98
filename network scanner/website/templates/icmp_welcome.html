@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}ICMP Subnet Scan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Subnet Range ICMP Scan</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label for="network">Network Address (CIDR notation)</label>
+                <input type="text" class="form-control" id="network" name="network" placeholder="192.168.1.0/24" required>
+                <small class="form-text text-muted">Enter network address in CIDR notation (e.g., 192.168.1.0/24)</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Scan Network</button>
+        </form>
+    </div>
+</div>
+
+<div id="results" class="mt-4">
+    {% if results %}
+    <div class="card">
+        <div class="card-header">
+            <h4>Scan Results</h4>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Status</th>
+                        <th>Response Timme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.ip }}</td>
+                        <td>{{ result.status }}</td>
+                        <td>{{ result.time }}ms</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

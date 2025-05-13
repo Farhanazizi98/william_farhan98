@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous"
+    />
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        crossorigin="anonymous"
+    />
+    <style>
+        /* Add body styles */
+        body {
+            padding-top: 56px;  /* Height of navbar */
+        }
+
+        /* Sidebar styles */
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            height: calc(100vh - 56px);
+            z-index: 999;
+            background: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+        }
+
+        #content {
+            width: calc(100% - 250px);
+            margin-left: 250px;
+            padding: 20px;
+            padding-top: 20px;  /* Add extra padding at the top */
+        }
+
+        .project-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .project-item {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .project-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .project-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .new-project-btn {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #pageLoadingIndicator {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+        }
+        .loading-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+    </style>
+    <title>{% block title %}Project{% endblock %}</title>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <div class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                <a class="nav-item nav-link" id="icmp" href="/icmp-scan">ICMP Scan</a>
+                <a class="nav-item nav-link" id="tcp" href="/tcp-udp-scan">TCP/UDP Scans</a>
+                <a class="nav-item nav-link" id="nmap" href="/ip_protocol_scan">IP protocol Scan</a>
+                {% else %}
+                <a class="nav-item nav-link" id="login" href="{{ url_for('auth.login') }}">Login</a>
+                <a class="nav-item nav-link" id="signup" href="{{ url_for('auth.sign_up') }}">Sign-up</a>
+                {% endif %}
+            </div>
+    
+            {% if user.is_authenticated %}
+            <div class="navbar-nav align-items-center">
+                <span class="navbar-text text-white mr-3">Logged in as: <strong>{{ user.email }}</strong></span>
+                <a class="nav-item nav-link btn btn-danger text-white my-1 mx-2 py-1" id="logout" href="{{ url_for('auth.logout') }}">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Navbar -->
+    <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <div class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                <a class="nav-item nav-link" id= "Home" href="home.html">Home</a>
+                <a class="nav-item nav-link" id="icmp" href="/icmp-scan">ICMP Scan</a>
+                <a class="nav-item nav-link" id="tcp" href="/tcp-udp-scan">TCP/UDP Scans</a>
+                {% else %}
+                <a class="nav-item nav-link" id="login" href="/login">login</a>
+                <a class="nav-item nav-link" id="signup" href="/sign-up">sign-up</a>
+                {% endif %}
+            </div>
+            {% if user.is_authenticated %}
+            <div class="navbar-nav">
+                <a class="nav-item nav-link btn btn-danger text-white my-1 mx-2 py-1" id="logout" href="/logout">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav> -->
+
+    <!-- Main Content with Sidebar -->
+    <div class="wrapper">
+        {% if user.is_authenticated %}
+        <nav id="sidebar">
+            {% block sidebar %}{% endblock %}
+        </nav>
+        {% endif %}
+        
+        <div id="content">
+            <!-- Flash messages at the top of content area -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+                                 {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        {% elif category == 'error' %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Add this right after the <body> tag -->
+    <div id="pageLoadingIndicator">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <h4 class="mt-3">Scanning Network...</h4>
+        </div>
+    </div>
+
+    <!-- Add this at the bottom of the file, before </body> -->
+    <script>
+        // Show loading on page load
+        document.onreadystatechange = function() {
+            if (document.readyState !== "complete") {
+                document.querySelector('#pageLoadingIndicator').style.display = 'block';
+            } else {
+                document.querySelector('#pageLoadingIndicator').style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

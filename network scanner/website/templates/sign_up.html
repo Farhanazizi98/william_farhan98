@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block title %}changed{% endblock %} 
+
+{% block content %}
+<form method="POST" action="{{ url_for('auth.sign_up') }}">
+    <h3 align = "center" >Sign Up</h3>
+    <div class = "form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+        <label for="firstName">First Name</label>
+        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name">
+        <label for="password1">password</label>
+        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password">
+        <label for="password2">password (Confirm)</label>
+        <input type="password" class="form-control" id="password2" name="password2" placeholder="Password (Confirm)">
+        
+    </div> 
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

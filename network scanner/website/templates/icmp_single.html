@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}ICMP Single Host Scan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Single Host ICMP Scan</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label for="target">Target IP Address</label>
+                <input type="text" class="form-control" id="target" name="target" placeholder="192.168.1.1" required>
+                <small class="form-text text-muted">Enter a single IP address to scan</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Scan Host</button>
+        </form>
+    </div>
+</div>
+
+{% if result %}
+<div class="mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>Scan Result</h4>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Status</th>
+                        <th>Response Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ result.ip }}</td>
+                        <td>{{ result.status }}</td>
+                        <td>{{ result.time }}ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

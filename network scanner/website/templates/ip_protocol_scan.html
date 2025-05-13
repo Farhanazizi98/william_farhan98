@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}IP Protocol Scan{% endblock %}
+
+{% block head %}
+<!--{{ super() }}-->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block sidebar %}
+<h3 class="sidebar-heading">Projects</h3>
+
+<form method="POST">
+    <button type="submit" name="new_project" class="btn btn-success new-project-btn">
+        <i class="fa fa-plus"></i> New Project
+    </button>
+</form>
+
+<ul class="list-group">
+    {% for project in projects %}
+    <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('views.ip_protocol_scan', project_id=project[0]) }}">
+                {{ project[1] }}
+                <small class="d-block">{{ project[2] }}</small>
+            </a>
+            <form method="POST" action="/delete-project/{{ project[0] }}" 
+                  style="display: inline;" 
+                  onsubmit="return confirm('Are you sure you want to delete this project?');">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<!-- Scan Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>IP Protocol Scan - {{ project_name }}</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-group">
+                <label for="target">Target IP</label>
+                <input type="text" class="form-control" id="target" name="target" 
+                       placeholder="192.168.1.1" required>
+                <small class="form-text text-muted">Enter target IP address</small>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="timing_template">Timing Templates:</label>
+                <select class="form-control" id="timing_template" name="timing_template">
+                    <option value="paranoid">Paranoid(T0)</option>
+                    <option value="sneaky">Sneaky(T1)</option>
+                    <option value="polite">Polite(T2)</option>
+                    <option value="normal" selected>Normal(T3)</option>
+                    <option value="aggressive">Aggressive(T4)</option>
+                    <option value="insane">Insane(T5)</option>
+                </select>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="os_type">Operating System:</label>
+                <select class="form-control" id="os_type" name="os_type">
+                    <option value="mac">macOS</option>
+                    <option value="windows">Windows</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Run Scan</button>
+        </form>
+    </div>
+</div>
+
+<!-- Scan History -->
+{% if stored_data %}
+<h4 class="mb-12">Scan History</h4>
+
+<div class="card mb-3">
+    {% set current_time = namespace(value=None) %}
+    {% set current_group = namespace(items={}) %}
+    {% set summary = namespace(total_hosts=0, hosts_up=0, scan_time=0, time_template='') %}
+    
+    {% for scan in stored_data %}
+        {% if current_time.value != scan[2] %}
+            {% if current_group.items %}
+                <div>
+                    <div class="card-header bg-secondary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Scan from {{ current_time.value }}</h5>
+                            <div class="d-flex">
+                                <small class="mx-3">Total Hosts Scanned: {{ summary.total_hosts }}</small>
+                                <small class="mx-3">Total Hosts Up: {{ summary.hosts_up }}</small>
+                                <small class="mx-3">Total Scan Time: {{ summary.scan_time }}s</small>
+                                <small class="mx-3">Timing Template: {{ summary.time_template }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for ip, scans in current_group.items.items() %}
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">IP Address: {{ ip }}</h6>
+                                <small>Latency: {{ scans[0][1] }}</small>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Protocol</th>
+                                            <th>State</th>
+                                            <th>Service</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for scan in scans %}
+                                        <tr>
+                                            <td>{{ scan[3] }}</td>
+                                            <td>
+                                                {% if scan[4] == 'open' %}
+                                                    <span class="badge bg-success">{{ scan[4] }}</span>
+                                                {% elif scan[4] == 'closed' %}
+                                                    <span class="badge bg-danger">{{ scan[4] }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">{{ scan[4] }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ scan[5] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            {% set current_time.value = scan[2] %}
+            {% set current_group.items = {scan[0]: [scan]} %}
+            {% set summary.total_hosts = scan[6] %}
+            {% set summary.hosts_up = scan[7] %}
+            {% set summary.scan_time = scan[8] %}
+            {% set summary.time_template = scan[9] %}
+        {% else %}
+            {% if scan[0] in current_group.items %}
+                {% set _ = current_group.items[scan[0]].append(scan) %}
+            {% else %}
+                {% set _ = current_group.items.update({scan[0]: [scan]}) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if current_group.items %}
+        <div>
+            <div class="card-header bg-secondary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Scan from {{ current_time.value }}</h5>
+                    <div class="d-flex">
+                        <small class="mx-3">Total Hosts Scanned: {{ summary.total_hosts }}</small>
+                        <small class="mx-3">Total Hosts Up: {{ summary.hosts_up }}</small>
+                        <small class="mx-3">Total Scan Time: {{ summary.scan_time }}s</small>
+                        <small class="mx-3">Timing Template: {{ summary.time_template }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% for ip, scans in current_group.items.items() %}
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">IP Address: {{ ip }}</h6>
+                        <small>Latency: {{ scans[0][1] }}</small>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Protocol</th>
+                                    <th>State</th>
+                                    <th>Service</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for scan in scans %}
+                                <tr>
+                                    <td>{{ scan[3] }}</td>
+                                    <td>
+                                        {% if scan[4] == 'open' %}
+                                            <span class="badge bg-success">{{ scan[4] }}</span>
+                                        {% elif scan[4] == 'closed' %}
+                                            <span class="badge bg-danger">{{ scan[4] }}</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">{{ scan[4] }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ scan[5] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% else %}
+<p class="text-muted">No scan results available yet.</p>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger mt-4">
+    {{ error }}
+</div>
+{% endif %}
+
+{% if scan_with_no_result %}
+<div class="alert alert-warning">
+    <p><strong>Scanned Target:</strong> {{ scan_with_no_result.ip_address }}</p>
+    <p><strong>Status:</strong> {{ scan_with_no_result.status }}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+
+

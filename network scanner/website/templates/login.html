@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %}Login{% endblock %} 
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-start">
+      <div class="col-md-8"> <!-- Takes 8 of 12 columns, leaving space on right -->
+        <form method="POST" actiom = "/login">
+            <h3 align = "center" >login</h3>
+            <div class = "form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+                <label for="password">password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                
+            </div> 
+            <br />
+            <button type="submit" class="btn btn-primary">login</button>
+        </form>        
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}s

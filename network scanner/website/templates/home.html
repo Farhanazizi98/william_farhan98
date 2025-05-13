@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} 
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Welcome, {{ user.firstName }}!</h1>
+    
+    <div class="card p-4">
+        <h2>Run Nmap Scan</h2>
+        <form method="POST">
+            <label for="ports">Ports: </label>
+            <input type="text" name="ports" id="ports" placeholder="" class="form-control mb-2">
+
+            <label for="target">Target IP/Hostname:</label>
+            <input type="text" name="target" id="target" required placeholder="" class="form-control mb-2">
+
+            <div class="form-check mb-3">
+                <input type="checkbox" name="include_ports" id="include_ports" class="form-check-input">
+                <label class="form-check-label" for="include_ports">Include Port Numbers in Scan Results</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Run Scan</button>
+        </form>
+
+        {% if output %}
+        <hr>
+        <h3>Scan Output:</h3>
+        <pre class="bg-light p-3 rounded">{{ output }}</pre>
+        {% endif %}
+
+        {% if error %}
+        <h3>Error:</h3>
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
