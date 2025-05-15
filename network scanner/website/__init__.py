@@ -13,7 +13,7 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
         db.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
-        db.row_factory = sqlite3.Row  # Access rows like dictionaries
+        db.row_factory = sqlite3.Row  
 
     return db
 
@@ -23,7 +23,7 @@ def close_db_connection(exception):
     if db is not None:
         db.close()
 
-
+# Initialize the database
 def init_db():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -119,6 +119,7 @@ def init_db():
         total_scan_time FLOAT,
         time_template TEXT NOT NULL
     )""")
+
     # Create IP_PROTOCOL_SCAN table if it doesn't exist 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS IP_PROTOCOL_SCAN (
@@ -140,9 +141,11 @@ def init_db():
     conn.commit()
     conn.close()
 
+#init the login manager
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
+#create the app
 def create_app():
     app = Flask(__name__)
     app.config.from_mapping(
@@ -152,14 +155,17 @@ def create_app():
 
     login_manager.init_app(app)
 
+    #import the views and auth blueprints
     from .views import views
     from .auth import auth
     from .delete import delete
 
+    #register the blueprints
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(delete, url_prefix="/")
 
+    #load the user
     @login_manager.user_loader
     def load_user(user_id):
         database = get_db()
@@ -170,24 +176,25 @@ def create_app():
             return User(id=row[0], email=row[1], firstName=row[2], password=row[3])
         return None
 
+    #prevent caching of all responses (AI approach)
     @app.after_request
     def add_header(response):
         # Prevent caching of all responses
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
+        response.headers['Cache-Control'] = 'no-store'
         return response
 
+    #check if the user is authenticated, (AI approach)
     @app.before_request
     def check_user_session():
         # Allow access to auth routes and static files
-        if request.endpoint and (request.endpoint.startswith('auth.') or request.endpoint.startswith('static')):
+        if request.endpoint and (request.endpoint.startswith('auth.') or request.endpoint.startswith('static')): 
             return
 
         # Check if user is not authenticated
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
 
+    #close the database connection
     @app.teardown_appcontext
     def teardown_db(exception):
         close_db_connection(exception)
@@ -196,3 +203,13 @@ def create_app():
 
 def init_app(app):
     init_db()
+
+
+#source --------------- https://github.com/techwithtim/Flask-Web-App-Tutorial/tree/main/website ---------------
+
+
+#source ---------------- https://flask.palletsprojects.com/en/stable/tutorial/database/ ----------------
+
+#source ----------https://loadforge.com/guides/effective-caching-strategies-for-faster-flask-applications -------------
+
+#source ------------ https://www.reddit.com/r/learnpython/comments/15404qk/sqlite_db_file_in_different_directory/ ------------

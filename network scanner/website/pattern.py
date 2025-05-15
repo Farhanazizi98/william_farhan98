@@ -40,3 +40,5 @@ def get_protocol_state_service_by_its_pattern(result):
     protocol_state_service_pattern = re.compile(r"^(\d+)\s+([a-z]+(?:\|[a-z]+)*)\s+([a-z]+)$", re.MULTILINE)
     return re.findall(protocol_state_service_pattern, result)
 
+
+#source ----------------- https://docs.python.org/3/howto/regex.html ------------------

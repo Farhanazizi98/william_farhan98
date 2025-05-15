@@ -34,8 +34,6 @@ def delete_project(project_id):
             # Delete related scan data based on scan type
             if scan_type == 'ICMP':
 
-
-
                 # First get all scan_ids for this project
                 cursor.execute("""
                     SELECT DISTINCT scan_id 
@@ -44,7 +42,7 @@ def delete_project(project_id):
                 """, (project_id, current_user.id))
                 scan_ids = [row[0] for row in cursor.fetchall()]
                 
-                # Delete from ip_addresses
+                # Delete from icmp_scan
                 cursor.execute("DELETE FROM icmp_scan WHERE project_id = ?", (project_id,))
                 
                 # Delete from scan_summary
@@ -52,8 +50,9 @@ def delete_project(project_id):
                     cursor.execute("""
                         DELETE FROM icmp_scan_summary 
                         WHERE id IN ({})
-                    """.format(','.join('?' * len(scan_ids))), scan_ids)
+                    """.format(','.join('?' * len(scan_ids))), scan_ids) # AI approch to delete the icmp scan summary
                     
+            #delete the port scan
             elif scan_type == 'port_scan':
 
                 cursor.execute("""
@@ -62,32 +61,36 @@ def delete_project(project_id):
                     WHERE project_id = ? AND user_id = ?
                 """, (project_id, current_user.id))
                 scan_ids = [row[0] for row in cursor.fetchall()]
-                
+
+                #delete the port scan
                 cursor.execute("DELETE FROM TCP_UDP_SCAN WHERE project_id = ?", (project_id,))
 
+                #delete the port scan summary
                 if scan_ids:
                     cursor.execute("""
                         DELETE FROM TCP_UDP_scan_summary 
                         WHERE id IN ({})
-                    """.format(','.join('?' * len(scan_ids))), scan_ids)
+                    """.format(','.join('?' * len(scan_ids))), scan_ids) # AI approch to delete the port scan summary
 
 
             elif scan_type == 'ip_protocol_scan':
-
+                #delete the ip protocol scan
                 cursor.execute("""
                     SELECT DISTINCT scan_id 
                     FROM IP_PROTOCOL_SCAN 
                     WHERE project_id = ? AND user_id = ?
                 """, (project_id, current_user.id))
                 scan_ids = [row[0] for row in cursor.fetchall()]
-                
+
+                #Delete the ip protocol scan
                 cursor.execute("DELETE FROM IP_PROTOCOL_SCAN WHERE project_id = ?", (project_id,))
 
+                #delete the ip protocol scan summary
                 if scan_ids:
                     cursor.execute("""
                         DELETE FROM IP_PROTOCOL_SCAN_SUMMARY 
                         WHERE id IN ({})
-                    """.format(','.join('?' * len(scan_ids))), scan_ids)
+                    """.format(','.join('?' * len(scan_ids))), scan_ids) # AI approch to delete the ip protocol scan summary
 
                 
             
@@ -135,3 +138,5 @@ def delete_project(project_id):
     
     return redirect(url_for("views.home"))
                         
+
+# source ----------------- https://docs.python.org/3/library/sqlite3.html ------------------

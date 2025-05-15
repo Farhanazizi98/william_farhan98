@@ -11,7 +11,7 @@
 
 <form method="POST">
     <button type="submit" name="new_project" class="btn btn-success new-project-btn">
-        <i class="fa fa-plus"></i> New Project
+        New Project
     </button>
 </form>
 
@@ -47,14 +47,14 @@
             <div class="form-group">
                 <label for="network">Target IP or Network</label>
                 <input type="text" class="form-control" id="network" name="target" 
-                       placeholder="8.8.8.1-10 or 8.8.8.8/25" required>
+                       placeholder="0.0.0.0-10 or 0.0.0.0/24" required>
                 <small class="form-text text-muted">Enter an IP range or subnet</small>
             </div>
 
             <div class="form-group mt-3">
                 <label for="ports">Ports (optional)</label>
                 <input type="text" class="form-control" id="ports" name="ports" 
-                       placeholder="80,443,8080 or 20-30">
+                       placeholder="80 or 20-30">
                 <small class="form-text text-muted">Enter specific ports or a range</small>
             </div>
 
@@ -80,7 +80,6 @@
                     <option value="xmax">XMAX scan</option>
                     <option value="fin">FIN scan</option>
                     <option value="syn_udp">SYN and UDP scan</option>
-                    <option value="ack_udp">ACK and UDP scan</option>
                     <option value="null_udp">NULL and UDP scan</option>
                     <option value="xmax_udp">XMAX and UDP scan</option>
                     <option value="fin_udp">FIN and UDP scan</option>
@@ -253,7 +252,7 @@
     {% endif %}
 </div>
 {% else %}
-<p class="text-muted">No scan results available yet.</p>
+<div class="alert alert-info">No scan results available yet.</div>
 {% endif %}
 
 {% if error %}
@@ -262,11 +261,5 @@
 </div>
 {% endif %}
 
-{% if scan_with_no_result %}
-<div class="alert alert-warning">
-    <p><strong>Scanned Target:</strong> {{ scan_with_no_result.ip_address }}</p>
-    <p><strong>Ports Scanned:</strong> {{ scan_with_no_result.ports_scanned }}</p>
-    <p><strong>Status:</strong> {{ scan_with_no_result.status }}</p>
-</div>
-{% endif %}
+
 {% endblock %}

@@ -1,0 +1,40 @@
+body {
+    padding-top: 56px;  
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+#sidebar {
+    width: 250px;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 999;
+    background: #f8f9fa;
+    padding: 20px;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+}
+
+#content {
+    width: calc(100% - 250px);
+    margin-left: 250px;
+    padding: 20px;
+    padding-top: 20px;  
+}
+
+
+
+
+
+.new-project-btn {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+

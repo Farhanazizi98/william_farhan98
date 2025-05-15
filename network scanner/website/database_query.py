@@ -147,3 +147,6 @@ def get_all_ip_protocol_scans_for_project(project_id, user_id):
     """, (project_id, user_id))
     return cursor.fetchall()
 
+
+#source ----------------- https://docs.python.org/3/library/sqlite3.html ------------------ 
+

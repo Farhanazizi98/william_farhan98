@@ -21,11 +21,6 @@
 <ul class="list-group">
 
     {% for project in projects %}
-    <!-- <li class="project-item "> <a href= "{{ url_for('views.icmp_scan', project_id=project[0]) }}" > {{ project[1] }}
-        <small class="d-block">
-            {{ project[2] }}
-        </small></a> -->
-        
     <li class="list-group-item">
         <div class="d-flex justify-content-between align-items-center">
             <a href="{{ url_for('views.icmp_scan', project_id=project[0]) }}">
@@ -62,13 +57,12 @@
             <div class="form-group">
                 <label for="network">Network Address</label>
                 <input type="text" class="form-control" id="network" name="target" 
-                       placeholder="192.168.1.0/24" required>
+                       placeholder="0.0.0.0/24" required>
                 <small class="form-text text-muted">
                     Enter network address
                 </small>
             </div>
             
-            <!-- Change to dropdown -->
 
             <div class="form-group mt-3">
                 <label for="timing_template">Timing Templates:</label>
@@ -125,6 +119,7 @@
                 </tbody>
             </table>
         </div>
+        <!-- Plot -->
         {% if plot_div and scan_time in plot_div %}
         <div class="plot-container">
             {{ plot_div[scan_time] | safe }}
@@ -200,10 +195,11 @@
                 <div class="card-header bg-secondary text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Scan from {{ current_time.value }}</h5>
-                        <small>Timing Template: {{ summary.time_template }}</small>
                         <small>Total Hosts Scanned: {{ summary.total_hosts }}</small>
                         <small>Total Hosts Up: {{ summary.hosts_up }}</small>
                         <small>Total Scan Time: {{ summary.scan_time }}</small>   
+                        <small>Timing Template: {{ summary.time_template }}</small>
+
                     </div>
                 </div>
                 <div class="card-body">

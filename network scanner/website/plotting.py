@@ -1,7 +1,7 @@
 import networkx as nx
 import plotly.graph_objects as go
 import numpy as np
-
+#create the network plot
 def create_network_plot(scan_data):
     G = nx.Graph()
     G.add_node("Scanner")
@@ -54,6 +54,7 @@ def create_network_plot(scan_data):
             node_text.append(node)  # Only IP for display
             hover_text.append(f"{node}<br>Latency: {latency:.2f}ms")
 
+    #create the node trace
     node_trace = go.Scatter(
         x=node_x, y=node_y,
         mode='markers+text',
@@ -85,6 +86,7 @@ def create_network_plot(scan_data):
     
     return fig.to_html(full_html=False)
 
+#create the tcp/udp plot
 def create_tcp_udp_plot(scan_data):
     plots = {}
     
@@ -149,10 +151,10 @@ def create_tcp_udp_plot(scan_data):
             if node == ip:
                 node_text.append(ip)
                 hover_text.append(f"<b>{ip}</b>")
-                node_colors.append('#1f77b4')  # Blue for IP
+                node_colors.append('#1f77b4')  
             else:
                 port_info = next(p for p in ports_info if p['port'].split('/')[0] == node)
-                node_text.append(node)  # Show only port number
+                node_text.append(node)  
                 hover_info = (
                     f"Port: {port_info['port']}<br>"
                     f"State: {port_info['state']}<br>"
@@ -161,12 +163,13 @@ def create_tcp_udp_plot(scan_data):
                 )
                 hover_text.append(hover_info)
                 if port_info['state'] == 'open':
-                    node_colors.append('#2ca02c')  # Green
+                    node_colors.append('green')  
                 elif port_info['state'] == 'closed':
-                    node_colors.append('#d62728')  # Red
+                    node_colors.append('red')  
                 else:
-                    node_colors.append('#ff7f0e')  # Orange
+                    node_colors.append('orange')  
 
+        #create the node trace
         node_trace = go.Scatter(
             x=node_x, y=node_y,
             mode='markers+text',
@@ -180,6 +183,7 @@ def create_tcp_udp_plot(scan_data):
                 line_width=2
             ))
 
+        #create the figure
         fig = go.Figure(
             data=[edge_trace, node_trace],
             layout=go.Layout(
@@ -195,4 +199,8 @@ def create_tcp_udp_plot(scan_data):
         plots[ip] = fig.to_html(full_html=False)
     
     return plots
+
+
+#Source ----------------- https://plotly.com/python/network-graphs/     --------------
+ 
 
